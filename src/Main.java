@@ -30,6 +30,8 @@ public class Main {
 
 
  */
+    private static final char EMPTY = '.';
+    private static final char SHIP = '#';
     public static void main(String[] args) {
 
         Scanner keyboard = new Scanner(System.in);
@@ -40,30 +42,38 @@ public class Main {
         int board_size = keyboard.nextInt();
 
 
-
         System.out.println();
-
 
 
         char[][] gameBoard = generateBoard(board_size);
 
-        System.out.println("how many ships would you like on the board? (max 5)");
+        System.out.println("how many ships would you like on the board? (max 10)");
         int shipNumber = keyboard.nextInt();
 
-        if (shipNumber > 5){
-            System.out.println("sorry, the maximum is 5 ships. please choose again");
+        while (shipNumber > 10){
+            System.out.println("sorry, the maximum is 10 ships. please choose again");
             shipNumber = keyboard.nextInt();
         }
 
-            // change the maximum later to depend on board size
+        // change the maximum later to depend on board size
 
-
-
-        String drction;
 
         for (int i = 1; i <= shipNumber; i++) {
 
-            ship(gameBoard, randomCoordinate(board_size), randomCoordinate(board_size), i, '-', direction());
+            boolean found = false;
+            for (int j = 1; j < 1000; j++) {
+                if (ship(gameBoard, randomCoordinate(board_size), randomCoordinate(board_size), i, SHIP, direction())){
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) {
+                System.out.println("i couldn't fit " + shipNumber + " ships on the board");
+                System.out.println();
+            }
+
+
         }
 
 
@@ -72,6 +82,7 @@ public class Main {
     }
 
     private static Random rnd = new Random();
+
     public static int randomCoordinate(int board_size) {
 
         return rnd.nextInt(board_size);
@@ -79,13 +90,12 @@ public class Main {
     }
 
 
-
-    public static char[][] generateBoard(int board_size){
+    public static char[][] generateBoard(int board_size) {
 
         char[][] board = new char[board_size][board_size];
 
-        for (int i = 0; i <board_size; i++) {
-            Arrays.fill(board[i], '0');
+        for (int i = 0; i < board_size; i++) {
+            Arrays.fill(board[i], EMPTY);
         }
 
         return board;
@@ -98,22 +108,19 @@ public class Main {
 
         if (random < 0.25) {
             return "up";
-        }
-        else if (random < 0.5) {
+        } else if (random < 0.5) {
             return "down";
-        }
-        else if (random < 0.75) {
+        } else if (random < 0.75) {
             return "left";
-        }
-        else {
+        } else {
             return "right";
         }
     }
 
-//    public static int xcoord() {
+    //    public static int xcoord() {
 //
 //    }
-    public static void ship(char[][] board, int x, int y, int shiplength, char shipSymbol, String direction) {
+    public static boolean ship(char[][] board, int x, int y, int shiplength, char shipSymbol, String direction) {
 
 
         /*
@@ -134,32 +141,23 @@ public class Main {
          */
 
         if (check(direction, board, shiplength, x, y)) {
-            board[x][y] = '+';
 
-
-            for (int i = 1; i < shiplength; i++) {
+            for (int i = 0; i < shiplength; i++) {
                 if (direction.equals("up")) {
-                    board[x-i][y] = shipSymbol;
-                }
-                else if (direction.equals("down")) {
-                    board[x+i][y] = shipSymbol;
-                }
-                else if (direction.equals("left")) {
-                    board[x][y-i] = shipSymbol;
-                }
-                else if (direction.equals("right")) {
-                    board[x][y+i] = shipSymbol;
+                    board[x - i][y] = shipSymbol;
+                } else if (direction.equals("down")) {
+                    board[x + i][y] = shipSymbol;
+                } else if (direction.equals("left")) {
+                    board[x][y - i] = shipSymbol;
+                } else if (direction.equals("right")) {
+                    board[x][y + i] = shipSymbol;
                 }
             }
 
+            return true;
         }
 
-
-
-
-
-        // check if there is space for a ship of length 2 at place x,y
-        // why is it breaking??? ok so its breaking because the check() function throws an exception when the ship is on the edge, because it cant check a coordinate that doesnt exist.how can i catch the exception and return false when it is thrown???
+        return false;
 
     }
 
@@ -167,60 +165,62 @@ public class Main {
     int shiplength = 3;
 
 
-
     public static boolean check(String direction, char[][] board, int shiplength, int x, int y) {
-
-
-
-        if (board[x][y] != '0') {
+        if (board[x][y] != EMPTY) {
             return false;
         }
 
-        if (direction.equals("up")) {
-            for (int i = 1; i < shiplength; i++) {
-                if (x - i == 0) {
-                    return false;
-                }
-                if (board[x-i][y] != '0') {
-                    return false;
-                }
-            }
-        }
-        else if (direction.equals("down")) {
-            for (int i = 1; i < shiplength; i++) {
-                if (x + i == board[0].length) {
-                    return false;
-                }
-                if (board[x+i][y] != '0') {
-                    return false;
+        switch (direction) {
+            case "up" -> {
+                for (int i = 0; i < shiplength; i++) {
+                    if (!checkSquare(x - i, y, board)) {
+                        return false;
+                    }
                 }
             }
-        }
-        else if (direction.equals("left")) {
-            for (int i = 1; i < shiplength; i++) {
-
-                if (y - i == 0) {
-                    return false;
+            case "down" -> {
+                for (int i = 0; i < shiplength; i++) {
+                    if (!checkSquare(x + i, y, board)) {
+                        return false;
+                    }
                 }
-
-                if (board[x][y-i] != '0') {
-                    return false;
-                }
-
             }
-        }
-        else if (direction.equals("right")) {
-            for (int i = 1; i < shiplength; i++) {
-                if (y + i == board.length) {
-                    return false;
+            case "left" -> {
+                for (int i = 0; i < shiplength; i++) {
+                    if (!checkSquare(x, y - i, board)) {
+                        return false;
+                    }
                 }
-                if (board[x][y+i] != '0') {
-                    return false;
+            }
+            case "right" -> {
+                for (int i = 0; i < shiplength; i++) {
+                    if (!checkSquare(x, y + i, board)) {
+                        return false;
+                    }
                 }
             }
         }
         return true;
 
 
-        }
     }
+
+    public static boolean checkSquare(int x, int y, char[][]board) {
+        if (x < 0 || x >= board.length || y < 0 || y >=board.length){
+            return false;
+        }
+        for (int i = -1; i < 2; i++) {
+            for (int j = -1; j < 2; j++) {
+                if (x+j < 0 || x+j >= board.length || y+i < 0 || y+i >=board.length){
+                    continue;
+                }
+                if (board[x+j][y+i] != EMPTY) {
+                    return false;
+                }
+            }
+        }
+        return true;
+
+    }
+}
+
