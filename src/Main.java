@@ -133,9 +133,6 @@ public class Main {
         }
          */
 
-
-
-
         if (check(direction, board, shiplength, x, y)) {
             board[x][y] = '+';
 
@@ -181,10 +178,8 @@ public class Main {
 
         if (direction.equals("up")) {
             for (int i = 1; i < shiplength; i++) {
-                for (int n = 1; n < shiplength-1; n++) {
-                    if (x - n == 0) {
-                        return false;
-                    }
+                if (x - i == 0) {
+                    return false;
                 }
                 if (board[x-i][y] != '0') {
                     return false;
@@ -193,11 +188,8 @@ public class Main {
         }
         else if (direction.equals("down")) {
             for (int i = 1; i < shiplength; i++) {
-
-                for (int n = 1; n < shiplength-1; n++) {
-                    if (x + n == board[0].length) {
-                        return false;
-                    }
+                if (x + i == board[0].length) {
+                    return false;
                 }
                 if (board[x+i][y] != '0') {
                     return false;
@@ -206,11 +198,11 @@ public class Main {
         }
         else if (direction.equals("left")) {
             for (int i = 1; i < shiplength; i++) {
-                for (int n = 1; n < shiplength-1; n++) {
-                    if (y - n == 0) {
-                        return false;
-                    }
+
+                if (y - i == 0) {
+                    return false;
                 }
+
                 if (board[x][y-i] != '0') {
                     return false;
                 }
@@ -219,10 +211,8 @@ public class Main {
         }
         else if (direction.equals("right")) {
             for (int i = 1; i < shiplength; i++) {
-                for (int n = 1; n < shiplength-1; n++) {
-                    if (y + n == board.length) {
-                        return false;
-                    }
+                if (y + i == board.length) {
+                    return false;
                 }
                 if (board[x][y+i] != '0') {
                     return false;
